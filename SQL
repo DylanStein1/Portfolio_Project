@@ -1,0 +1,47 @@
+Select *
+From Covid_Deaths
+Order By cast(date as date);
+
+Select *
+From Covid_Vaccines
+Order By cast(date as date);
+
+--Select Data that we will be using
+
+Select location, date, total_cases, new_cases, total_deaths, population
+From Covid_Deaths
+Order By cast(date as date);
+
+-- Looking at Total Cases vs Total Deaths
+
+Select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS Death_Percentage
+From Covid_Deaths
+Order By cast(date as date);
+
+--Looking at Total Cases vs Population
+--Shows Percent of Population got Covid
+Select location, date, total_cases, Population, (total_cases/population)*100 AS Infection_Percentage
+From Covid_Deaths
+Order By cast(date as date);
+
+--Selecting Vacinations data
+
+Select date, new_tests, positive_rate, tests_per_case, people_vaccinated, people_fully_vaccinated, total_boosters, new_vaccinations, hospital_beds_per_thousand
+From Covid_Vaccines
+WHERE people_vaccinated is not null
+Order By cast(date AS date);
+
+--Looking at positive test rate correlation to number of people vaccinated
+
+SELECT date, new_tests, positive_rate, tests_per_case, people_fully_vaccinated
+FROM Covid_Vaccines
+WHERE people_fully_vaccinated IS Not Null;
+
+--Looking at Percent of Population At Various Points in the Vaccination Process
+
+Select Covid_Vaccines.date AS Date, Covid_Deaths.population AS Population, Covid_Vaccines.people_vaccinated AS people_vaccinated, people_vaccinated/population*100 AS Vaccinated_Percent_of_Population, Covid_Vaccines.people_fully_vaccinated AS people_fully_vaccinated, people_fully_vaccinated/population*100 As Fully_Vaccinated_Percent, Covid_Vaccines.total_boosters AS total_boosters, total_boosters/people_vaccinated AS Boosters_per_Vaccination
+FROM Covid_Vaccines
+Join Covid_Deaths On Covid_Deaths.date=Covid_Vaccines.date
+WHERE people_vaccinated IS NOT NULL;
+
+
