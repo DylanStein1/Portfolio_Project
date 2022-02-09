@@ -1,0 +1,147 @@
+-- Cleaning Data With SQL
+
+SELECT *
+FROM Nashville_Housing;
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+--Populate Property Address Data
+
+Select *
+FROM Nashville_Housing
+WHERE PropertyAddress IS NULL;
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+--Breaking Out Address into Individual Columns (Address, City, State)
+
+SELECT PropertyAddress
+FROM Nashville_Housing;
+
+
+
+Select 
+Substring(PropertyAddress, 1, locate(',', PropertyAddress) -1) AS Address,
+Substring(PropertyAddress, locate(',', PropertyAddress) +1 , LENGTH(PropertyAddress)) AS City
+FROM Nashville_Housing;
+
+
+
+ALTER TABLE Nashville_Housing
+Add PropertySplitAddress NVARCHAR(255);
+
+UPDATE Nashville_Housing
+SET PropertySplitAddress = Substring(PropertyAddress, 1, locate(',', PropertyAddress) -1);
+
+
+
+
+ALTER TABLE Nashville_Housing
+Add PropertySplitCity NVARCHAR(255);
+
+UPDATE Nashville_Housing
+SET PropertySplitCity = Substring(PropertyAddress, locate(',', PropertyAddress) +1 , LENGTH(PropertyAddress));
+
+
+
+
+SELECT *
+FROM Nashville_Housing
+
+
+
+
+SELECT OwnerAddress
+FROM Nashville_Housing;
+
+
+
+
+Select 
+SUBSTRING_INDEX(OwnerAddress, ",", 1) AS Owner_Address
+FROM Nashville_Housing;
+
+
+
+
+ALTER TABLE Nashville_Housing
+Add Owner_Address_City NVARCHAR(255);
+
+UPDATE Nashville_Housing
+SET Owner_Address_City = LEFT(OwnerAddress, LENGTH(OwnerAddress)-4);
+
+
+Select 
+SUBSTRING_INDEX(Owner_Address_City, ",", -1) AS Owner_City
+FROM Nashville_Housing;
+
+
+
+
+SELECT 
+SUBSTRING_INDEX(OwnerAddress, ",", -1) AS Owner_State
+FROM Nashville_Housing;
+
+
+
+ALTER TABLE Nashville_Housing
+ADD Owner_Split_Address NVARCHAR(255);
+
+Update Nashville_Housing
+SET Owner_Split_Address = SUBSTRING_INDEX(OwnerAddress, ",", 1);
+
+
+ALTER TABLE Nashville_Housing
+ADD Owner_Split_City NVARCHAR(255);
+
+Update Nashville_Housing
+SET Owner_Split_City = SUBSTRING_INDEX(Owner_Address_City, ",", -1);
+
+
+
+Alter Table Nashville_Housing
+Add Owner_Split_State NVARCHAR(255);
+
+UPDATE Nashville_Housing
+SET Owner_Split_State = SUBSTRING_INDEX(OwnerAddress, ",", -1);
+
+
+
+
+SELECT *
+FROM Nashville_Housing;
+
+
+------------------------------------------------------------------------------------------------------
+
+--Change Y and N to Yes and No in "Sold as Vacant" Field
+
+SELECT DISTINCT (SoldAsVacant), Count(SoldAsVacant)
+FROM Nashville_Housing
+GROUP BY SoldAsVacant
+ORDER BY 2 DESC;
+
+
+
+SELECT SoldAsVacant,
+CASE When SoldAsVacant = 'Y' THEN 'Yes'
+WHEN SoldAsVacant = 'N' THEN 'No'
+ELSE SoldAsVacant
+END
+FROM Nashville_Housing;
+
+
+
+UPDATE Nashville_Housing
+SET SoldAsVacant =
+CASE When SoldAsVacant = 'Y' THEN 'Yes'
+WHEN SoldAsVacant = 'N' THEN 'No'
+ELSE SoldAsVacant
+END;
+
+------------------------------------------------------------------------------------------------------
+
+--Delete Unused Columns
+
+ALTER TABLE Nashville_Housing
+DROP COLUMN PropertyAddress, OwnerAddress, Owner_Address_City;
